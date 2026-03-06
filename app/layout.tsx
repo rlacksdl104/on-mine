@@ -9,7 +9,13 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'Minesweeper Online - 멀티플레이어 지뢰찾기',
   description: '친구들과 함께 즐기는 실시간 멀티플레이어 지뢰찾기 게임. 협동 모드와 대전 모드를 지원합니다.',
-}
+  verfication: {
+    other : {
+      'naver-site-verification': '49eca4baced270eebb85a1df01873dbd5f3aad11',
+    }
+  },
+};
+
 
 export const viewport: Viewport = {
   themeColor: '#1a1a2e',

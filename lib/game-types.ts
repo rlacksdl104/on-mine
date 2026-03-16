@@ -94,3 +94,14 @@ export const NUMBER_COLORS: Record<number, string> = {
   7: "#1f2937",
   8: "#6b7280",
 }
+
+// ─── Ranked Mode ─────────────────────────────────────────────────────────────
+
+export type RankedRecord = {
+  uid: string
+  displayName: string
+  photoURL?: string
+  difficulty: Difficulty
+  timeMs: number          // 클리어 시간 (밀리초)
+  date: number            // timestamp
+}

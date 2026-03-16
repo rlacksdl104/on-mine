@@ -1,12 +1,31 @@
 import { ref, push, get, query, orderByChild, limitToFirst } from "firebase/database"
 import { database } from "./firebase"
+import { auth } from "./auth"
 import type { Difficulty, RankedRecord } from "./game-types"
 
-// rankings/{difficulty}/{pushKey} = RankedRecord
+const BANNED_USERS = [
+  "whitefish",
+  "blackfish", 
+  "하생",
+  "이정한",
+  "하얀색생선",
+  "검정색생선",
+]
+
+export function isBannedUser(displayName: string): boolean {
+  return BANNED_USERS.some(
+    (banned) => banned.toLowerCase() === displayName.toLowerCase()
+  )
+}
+
 export async function submitRankedRecord(record: RankedRecord): Promise<void> {
-  if (!record.timeMs || record.timeMs <= 0) {
-    throw new Error("유효하지 않은 기록입니다.")
-  }
+  const user = auth.currentUser
+  if (!user) throw new Error("로그인이 필요합니다.")
+  if (user.uid !== record.uid) throw new Error("uid 불일치")
+  if (isBannedUser(user.displayName || "")) throw new Error("접근이 제한된 계정입니다.")
+
+  await user.getIdToken(true)
+
   const rankRef = ref(database, `rankings/${record.difficulty}`)
   await push(rankRef, record)
 }
@@ -18,7 +37,7 @@ export async function getLeaderboard(
   const rankRef = query(
     ref(database, `rankings/${difficulty}`),
     orderByChild("timeMs"),
-    limitToFirst(limit * 5) // fetch extra, filter to top N per user client-side
+    limitToFirst(limit * 5)
   )
   const snap = await get(rankRef)
   if (!snap.exists()) return []
@@ -28,7 +47,6 @@ export async function getLeaderboard(
     all.push(child.val() as RankedRecord)
   })
 
-  // Keep only the best record per user
   const bestByUser = new Map<string, RankedRecord>()
   for (const r of all) {
     const existing = bestByUser.get(r.uid)

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { isBannedUser } from "@/lib/ranking"
 import {
   ArrowLeft, Trophy, Shield, RotateCcw, Home,
   Clock, Target, Bomb as BombIcon, Medal, ChevronRight,
@@ -124,6 +125,22 @@ export default function RankedPage() {
   useEffect(() => {
     fetchLeaderboard(difficulty)
   }, [difficulty, fetchLeaderboard])
+
+  useEffect(() => {
+  const unsub = subscribeToAuth((u) => {
+    setUser(u)
+    if (!u) {
+      router.push("/")
+      return
+    }
+    // 밴 유저 차단
+    if (isBannedUser(u.displayName || "")) {
+      router.push("/")
+      toast.error("접근이 제한된 계정입니다.")
+    }
+  })
+  return unsub
+}, [router])
 
   // ── Start a new game ───────────────────────────────────────────────────────
   const handleStart = useCallback(async () => {

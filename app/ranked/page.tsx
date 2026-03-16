@@ -62,6 +62,8 @@ function getMedalColor(rank: number) {
   return "text-muted-foreground"
 }
 
+
+
 export default function RankedPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
@@ -91,6 +93,14 @@ export default function RankedPage() {
     })
     return unsub
   }, [router])
+
+
+  // 게임 중 우클릭 컨텍스트 메뉴 전체 차단
+useEffect(() => {
+  const prevent = (e: MouseEvent) => e.preventDefault()
+  document.addEventListener("contextmenu", prevent)
+  return () => document.removeEventListener("contextmenu", prevent)
+}, [])
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) {

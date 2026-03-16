@@ -10,6 +10,7 @@ import { GameHeader } from "@/components/game/game-header"
 import { PlayerList } from "@/components/game/player-list"
 import { GameResultDialog } from "@/components/game/game-result-dialog"
 import { GameChat } from "@/components/game/game-chat"
+
 import {
   subscribeToRoom,
   handleCellReveal,
@@ -47,6 +48,13 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
 
   const boardInitRef = useRef(false)
   const roomRef = useRef<Room | null>(null)
+
+  // 게임 중 우클릭 컨텍스트 메뉴 전체 차단
+useEffect(() => {
+  const prevent = (e: MouseEvent) => e.preventDefault()
+  document.addEventListener("contextmenu", prevent)
+  return () => document.removeEventListener("contextmenu", prevent)
+}, [])
 
   useEffect(() => {
     if (!roomId) return

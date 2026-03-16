@@ -1,8 +1,8 @@
 export type CellState = {
-  isMine: boolean
-  isRevealed: boolean
-  isFlagged: boolean
-  adjacentMines: number
+  _x7k: boolean
+  _m2w: boolean
+  _p9v: boolean
+  _q3z: number
   revealedBy?: string
 }
 

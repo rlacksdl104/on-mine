@@ -103,10 +103,10 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
           const config = DIFFICULTY_CONFIGS[data.difficulty]
           const board: CellState[][] = Array.from({ length: config.rows }, () =>
             Array.from({ length: config.cols }, () => ({
-              isMine: false,
-              isRevealed: false,
-              isFlagged: false,
-              adjacentMines: 0,
+              _x7k: false,
+              _m2w: false,
+              _p9v: false,
+              _q3z: 0,
             }))
           )
           setLocalBoard(board)
@@ -176,7 +176,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
       if (room.mode === "competitive" && localStatus !== "playing") return
 
       const cell = localBoard[row][col]
-      if (!cell.isRevealed || cell.adjacentMines === 0) return
+      if (!cell._m2w || cell._q3z === 0) return
 
       if (room.mode === "cooperative") {
         await handleChordReveal(roomId, playerId, row, col, localBoard, "cooperative", nickname)
@@ -212,7 +212,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
       if (room.mode === "competitive" && localStatus !== "playing") return
 
       const cell = localBoard[row][col]
-      const newFlagged = !cell.isFlagged
+      const newFlagged = !cell._p9v
       const newBoard = toggleFlag(localBoard, row, col)
 
       if (room.mode === "cooperative") {

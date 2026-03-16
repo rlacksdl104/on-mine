@@ -244,7 +244,7 @@ export async function handleCellReveal(
   if (mode === "cooperative") {
     const updates: Record<string, unknown> = {}
     for (const [r, c] of result.revealedCells) {
-      updates[`board/${r}/${c}/isRevealed`] = true
+      updates[`board/${r}/${c}/_m2w`] = true
       updates[`board/${r}/${c}/revealedBy`] = nickname
     }
 
@@ -252,7 +252,7 @@ export async function handleCellReveal(
     updates[`players/${playerId}/cellsRevealed`] = (await getPlayerStat(roomId, playerId, "cellsRevealed")) + result.revealedCells.length
 
     if (result.hitMine) {
-      updates[`board/${row}/${col}/isRevealed`] = true
+      updates[`board/${row}/${col}/_m2w`] = true
       updates[`board/${row}/${col}/revealedBy`] = nickname
       updates["status"] = "lost"
       updates["endTime"] = Date.now()
@@ -262,8 +262,8 @@ export async function handleCellReveal(
       const mineUpdates: Record<string, unknown> = {}
       for (let r = 0; r < revealed.length; r++) {
         for (let c = 0; c < revealed[r].length; c++) {
-          if (revealed[r][c].isMine) {
-            mineUpdates[`board/${r}/${c}/isRevealed`] = true
+          if (revealed[r][c]._x7k) {
+            mineUpdates[`board/${r}/${c}/_m2w`] = true
           }
         }
       }
@@ -317,7 +317,7 @@ export async function handleChordReveal(
   if (mode === "cooperative") {
     const updates: Record<string, unknown> = {}
     for (const [r, c] of result.revealedCells) {
-      updates[`board/${r}/${c}/isRevealed`] = true
+      updates[`board/${r}/${c}/_m2w`] = true
       updates[`board/${r}/${c}/revealedBy`] = nickname
     }
 
@@ -331,8 +331,8 @@ export async function handleChordReveal(
       const revealed = revealAllMines(result.newBoard)
       for (let r = 0; r < revealed.length; r++) {
         for (let c = 0; c < revealed[r].length; c++) {
-          if (revealed[r][c].isMine) {
-            updates[`board/${r}/${c}/isRevealed`] = true
+          if (revealed[r][c]._x7k) {
+            updates[`board/${r}/${c}/_m2w`] = true
           }
         }
       }
@@ -375,7 +375,7 @@ export async function handleCellFlag(
   mode: GameMode
 ): Promise<void> {
   if (mode === "cooperative") {
-    await update(ref(database, `rooms/${roomId}/board/${row}/${col}`), { isFlagged: flagged })
+    await update(ref(database, `rooms/${roomId}/board/${row}/${col}`), { _p9v: flagged })
     if (flagged) {
       const current = await getPlayerStat(roomId, playerId, "flagsPlaced")
       await update(ref(database, `rooms/${roomId}/players/${playerId}`), { flagsPlaced: current + 1 })

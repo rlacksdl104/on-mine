@@ -4,6 +4,9 @@ import type { Difficulty, RankedRecord } from "./game-types"
 
 // rankings/{difficulty}/{pushKey} = RankedRecord
 export async function submitRankedRecord(record: RankedRecord): Promise<void> {
+  if (!record.timeMs || record.timeMs <= 0) {
+    throw new Error("유효하지 않은 기록입니다.")
+  }
   const rankRef = ref(database, `rankings/${record.difficulty}`)
   await push(rankRef, record)
 }

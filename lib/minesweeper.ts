@@ -22,10 +22,10 @@ export function createBoard(
   const { rows, cols, mines } = config
   const board: CellState[][] = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => ({
-      isMine: false,
-      isRevealed: false,
-      isFlagged: false,
-      adjacentMines: 0,
+      _x7k: false,
+      _m2w: false,
+      _p9v: false,
+      _q3z: 0,
     }))
   )
 
@@ -54,24 +54,24 @@ export function createBoard(
   const mineCount = Math.min(mines, positions.length)
   for (let i = 0; i < mineCount; i++) {
     const [r, c] = positions[i]
-    board[r][c].isMine = true
+    board[r][c]._x7k = true
   }
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c].isMine) continue
+      if (board[r][c]._x7k) continue
       let count = 0
       for (let dr = -1; dr <= 1; dr++) {
         for (let dc = -1; dc <= 1; dc++) {
           if (dr === 0 && dc === 0) continue
           const nr = r + dr
           const nc = c + dc
-          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc].isMine) {
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc]._x7k) {
             count++
           }
         }
       }
-      board[r][c].adjacentMines = count
+      board[r][c]._q3z = count
     }
   }
 
@@ -89,12 +89,12 @@ export function revealCell(
   const newBoard = board.map((r) => r.map((c) => ({ ...c })))
   const revealedCells: [number, number][] = []
 
-  if (newBoard[row][col].isRevealed || newBoard[row][col].isFlagged) {
+  if (newBoard[row][col]._m2w || newBoard[row][col]._p9v) {
     return { newBoard, hitMine: false, revealedCells }
   }
 
-  if (newBoard[row][col].isMine) {
-    newBoard[row][col].isRevealed = true
+  if (newBoard[row][col]._x7k) {
+    newBoard[row][col]._m2w = true
     newBoard[row][col].revealedBy = revealedBy
     return { newBoard, hitMine: true, revealedCells: [[row, col]] }
   }
@@ -109,14 +109,14 @@ export function revealCell(
     visited.add(key)
 
     if (r < 0 || r >= rows || c < 0 || c >= cols) continue
-    if (newBoard[r][c].isRevealed || newBoard[r][c].isFlagged) continue
-    if (newBoard[r][c].isMine) continue
+    if (newBoard[r][c]._m2w || newBoard[r][c]._p9v) continue
+    if (newBoard[r][c]._x7k) continue
 
-    newBoard[r][c].isRevealed = true
+    newBoard[r][c]._m2w = true
     newBoard[r][c].revealedBy = revealedBy
     revealedCells.push([r, c])
 
-    if (newBoard[r][c].adjacentMines === 0) {
+    if (newBoard[r][c]._q3z === 0) {
       for (let dr = -1; dr <= 1; dr++) {
         for (let dc = -1; dc <= 1; dc++) {
           if (dr === 0 && dc === 0) continue
@@ -131,8 +131,8 @@ export function revealCell(
 
 export function toggleFlag(board: CellState[][], row: number, col: number): CellState[][] {
   const newBoard = board.map((r) => r.map((c) => ({ ...c })))
-  if (!newBoard[row][col].isRevealed) {
-    newBoard[row][col].isFlagged = !newBoard[row][col].isFlagged
+  if (!newBoard[row][col]._m2w) {
+    newBoard[row][col]._p9v = !newBoard[row][col]._p9v
   }
   return newBoard
 }
@@ -140,7 +140,7 @@ export function toggleFlag(board: CellState[][], row: number, col: number): Cell
 export function checkWin(board: CellState[][]): boolean {
   for (const row of board) {
     for (const cell of row) {
-      if (!cell.isMine && !cell.isRevealed) return false
+      if (!cell._x7k && !cell._m2w) return false
     }
   }
   return true
@@ -151,8 +151,8 @@ export function countRemainingMines(board: CellState[][]): number {
   let flags = 0
   for (const row of board) {
     for (const cell of row) {
-      if (cell.isMine) mines++
-      if (cell.isFlagged) flags++
+      if (cell._x7k) mines++
+      if (cell._p9v) flags++
     }
   }
   return mines - flags
@@ -163,9 +163,9 @@ export function getProgress(board: CellState[][]): number {
   let revealed = 0
   for (const row of board) {
     for (const cell of row) {
-      if (!cell.isMine) {
+      if (!cell._x7k) {
         total++
-        if (cell.isRevealed) revealed++
+        if (cell._m2w) revealed++
       }
     }
   }
@@ -174,7 +174,7 @@ export function getProgress(board: CellState[][]): number {
 
 export function revealAllMines(board: CellState[][]): CellState[][] {
   return board.map((row) =>
-    row.map((cell) => (cell.isMine ? { ...cell, isRevealed: true } : { ...cell }))
+    row.map((cell) => (cell._x7k ? { ...cell, _m2w: true } : { ...cell }))
   )
 }
 
@@ -200,10 +200,10 @@ export function firebaseToBoard(
     for (let c = 0; c < cols; c++) {
       const cellData = data?.[r.toString()]?.[c.toString()]
       board[r][c] = cellData || {
-        isMine: false,
-        isRevealed: false,
-        isFlagged: false,
-        adjacentMines: 0,
+        _x7k: false,
+        _m2w: false,
+        _p9v: false,
+        _q3z: 0,
       }
     }
   }
@@ -226,7 +226,7 @@ export function chordReveal(
   const cols = board[0].length
   const cell = board[row][col]
 
-  if (!cell.isRevealed || cell.adjacentMines === 0) {
+  if (!cell._m2w || cell._q3z === 0) {
     return { newBoard: board, hitMine: false, revealedCells: [] }
   }
 
@@ -236,13 +236,13 @@ export function chordReveal(
       if (dr === 0 && dc === 0) continue
       const nr = row + dr
       const nc = col + dc
-      if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc].isFlagged) {
+      if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc]._p9v) {
         adjacentFlags++
       }
     }
   }
 
-  if (adjacentFlags !== cell.adjacentMines) {
+  if (adjacentFlags !== cell._q3z) {
     return { newBoard: board, hitMine: false, revealedCells: [] }
   }
 
@@ -257,7 +257,7 @@ export function chordReveal(
       const nc = col + dc
       if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
         const neighbor = currentBoard[nr][nc]
-        if (!neighbor.isRevealed && !neighbor.isFlagged) {
+        if (!neighbor._m2w && !neighbor._p9v) {
           const result = revealCell(currentBoard, nr, nc, revealedBy)
           currentBoard = result.newBoard
           allRevealed.push(...result.revealedCells)
@@ -280,8 +280,8 @@ export function findSafeStart(config: { rows: number; cols: number; mines: numbe
 
   for (let r = 0; r < config.rows; r++) {
     for (let c = 0; c < config.cols; c++) {
-      if (!board[r][c].isMine) {
-        if (board[r][c].adjacentMines === 0) {
+      if (!board[r][c]._x7k) {
+        if (board[r][c]._q3z === 0) {
           zeroCells.push({ row: r, col: c })
         }
         safeCells.push({ row: r, col: c })
@@ -333,12 +333,12 @@ function analyzeBoardSolvability(board: CellState[][], startRow: number, startCo
     if (visited.has(key)) continue
     visited.add(key)
     if (r < 0 || r >= rows || c < 0 || c >= cols) continue
-    if (board[r][c].isMine) continue
+    if (board[r][c]._x7k) continue
     if (revealed[r][c]) continue
 
     revealed[r][c] = true
 
-    if (board[r][c].adjacentMines === 0) {
+    if (board[r][c]._q3z === 0) {
       for (let dr = -1; dr <= 1; dr++) {
         for (let dc = -1; dc <= 1; dc++) {
           if (dr === 0 && dc === 0) continue
@@ -357,7 +357,7 @@ function analyzeBoardSolvability(board: CellState[][], startRow: number, startCo
   }
 
   // Now iteratively apply logical deduction
-  const totalSafe = rows * cols - board.flat().filter((c) => c.isMine).length
+  const totalSafe = rows * cols - board.flat().filter((c) => c._x7k).length
   const maxIterations = rows * cols * 2
 
   for (let iter = 0; iter < maxIterations; iter++) {
@@ -373,9 +373,9 @@ function analyzeBoardSolvability(board: CellState[][], startRow: number, startCo
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        if (!revealed[r][c] || board[r][c].adjacentMines === 0) continue
+        if (!revealed[r][c] || board[r][c]._q3z === 0) continue
 
-        const num = board[r][c].adjacentMines
+        const num = board[r][c]._q3z
         const neighbors: [number, number][] = []
         let adjacentFlags = 0
         let adjacentUnrevealed = 0
@@ -412,7 +412,7 @@ function analyzeBoardSolvability(board: CellState[][], startRow: number, startCo
             if (!revealed[nr][nc] && !flagged[nr][nc]) {
               revealed[nr][nc] = true
               progress = true
-              if (board[nr][nc].adjacentMines === 0) {
+              if (board[nr][nc]._q3z === 0) {
                 const floodQueue: [number, number][] = [[nr, nc]]
                 const floodVisited = new Set<string>()
                 while (floodQueue.length > 0) {
@@ -426,9 +426,9 @@ function analyzeBoardSolvability(board: CellState[][], startRow: number, startCo
                       const fnr = fr + ddr
                       const fnc = fc + ddc
                       if (fnr >= 0 && fnr < rows && fnc >= 0 && fnc < cols) {
-                        if (!revealed[fnr][fnc] && !flagged[fnr][fnc] && !board[fnr][fnc].isMine) {
+                        if (!revealed[fnr][fnc] && !flagged[fnr][fnc] && !board[fnr][fnc]._x7k) {
                           revealed[fnr][fnc] = true
-                          if (board[fnr][fnc].adjacentMines === 0) {
+                          if (board[fnr][fnc]._q3z === 0) {
                             floodQueue.push([fnr, fnc])
                           }
                         }
@@ -479,7 +479,7 @@ export function generateNoGuessSeed(
 
     for (let r = 0; r < config.rows; r++) {
       for (let c = 0; c < config.cols; c++) {
-        if (!board[r][c].isMine && board[r][c].adjacentMines === 0) {
+        if (!board[r][c]._x7k && board[r][c]._q3z === 0) {
           let count = 0
           const q: [number, number][] = [[r, c]]
           const v = new Set<string>()
@@ -489,9 +489,9 @@ export function generateNoGuessSeed(
             if (v.has(k)) continue
             v.add(k)
             if (qr < 0 || qr >= config.rows || qc < 0 || qc >= config.cols) continue
-            if (board[qr][qc].isMine) continue
+            if (board[qr][qc]._x7k) continue
             count++
-            if (board[qr][qc].adjacentMines === 0) {
+            if (board[qr][qc]._q3z === 0) {
               for (let dr = -1; dr <= 1; dr++) {
                 for (let dc = -1; dc <= 1; dc++) {
                   if (dr === 0 && dc === 0) continue

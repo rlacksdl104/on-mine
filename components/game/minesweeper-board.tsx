@@ -30,7 +30,7 @@ export function MinesweeperBoard({
   const cols = board[0]?.length || 0
 
   // Check if any cell has been revealed (to hide safe start indicator after first click)
-  const anyRevealed = board.some((row) => row.some((cell) => cell.isRevealed))
+  const anyRevealed = board.some((row) => row.some((cell) => cell._m2w))
 
   useEffect(() => {
     const updateSize = () => {

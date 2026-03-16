@@ -21,25 +21,25 @@ function CellComponent({ cell, row, col, size, disabled, isSafeStart, onClick, o
   const handleClick = () => {
     if (disabled) return
     // If it's a revealed number cell, try chord click
-    if (cell.isRevealed && cell.adjacentMines > 0 && onChordClick) {
+    if (cell._m2w && cell._q3z > 0 && onChordClick) {
       onChordClick(row, col)
       return
     }
-    if (cell.isRevealed || cell.isFlagged) return
+    if (cell._m2w || cell._p9v) return
     onClick(row, col)
   }
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault()
-    if (disabled || cell.isRevealed) return
+    if (disabled || cell._m2w) return
     onRightClick(row, col)
   }
 
   const fontSize = Math.max(10, size * 0.5)
   const iconSize = Math.max(10, size * 0.45)
 
-  if (cell.isRevealed) {
-    if (cell.isMine) {
+  if (cell._m2w) {
+    if (cell._x7k) {
       return (
         <button
           className="flex items-center justify-center rounded-sm transition-colors"
@@ -59,7 +59,7 @@ function CellComponent({ cell, row, col, size, disabled, isSafeStart, onClick, o
     return (
       <button
         className={`flex items-center justify-center rounded-sm ${
-          cell.adjacentMines > 0 && !disabled ? "cursor-pointer hover:brightness-125 active:brightness-90" : ""
+          cell._q3z > 0 && !disabled ? "cursor-pointer hover:brightness-125 active:brightness-90" : ""
         }`}
         style={{
           width: size,
@@ -68,25 +68,25 @@ function CellComponent({ cell, row, col, size, disabled, isSafeStart, onClick, o
           background: "var(--cell-revealed)",
         }}
         onClick={handleClick}
-        disabled={disabled && cell.adjacentMines === 0}
-        aria-label={`셀 ${row},${col}: ${cell.adjacentMines > 0 ? cell.adjacentMines : "빈 칸"}`}
+        disabled={disabled && cell._q3z === 0}
+        aria-label={`셀 ${row},${col}: ${cell._q3z > 0 ? cell._q3z : "빈 칸"}`}
       >
-        {cell.adjacentMines > 0 && (
+        {cell._q3z > 0 && (
           <span
             className="font-mono font-bold"
             style={{
               fontSize,
-              color: NUMBER_COLORS[cell.adjacentMines] || "#9ca3af",
+              color: NUMBER_COLORS[cell._q3z] || "#9ca3af",
             }}
           >
-            {cell.adjacentMines}
+            {cell._q3z}
           </span>
         )}
       </button>
     )
   }
 
-  if (cell.isFlagged) {
+  if (cell._p9v) {
     return (
       <button
         className="flex items-center justify-center rounded-sm transition-colors"

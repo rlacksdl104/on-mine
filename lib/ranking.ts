@@ -1,19 +1,9 @@
 import { ref, push, get, query, orderByChild, limitToFirst } from "firebase/database"
 import { database } from "./firebase"
-import { auth } from "./auth"
 import type { Difficulty, RankedRecord } from "./game-types"
 
+// rankings/{difficulty}/{pushKey} = RankedRecord
 export async function submitRankedRecord(record: RankedRecord): Promise<void> {
-  // 현재 로그인된 유저 토큰 확인
-  const user = auth.currentUser
-  if (!user) throw new Error("로그인이 필요합니다.")
-
-  // uid 일치 검증
-  if (user.uid !== record.uid) throw new Error("uid 불일치")
-
-  // 토큰 강제 갱신 (만료된 토큰 방지)
-  await user.getIdToken(true)
-
   const rankRef = ref(database, `rankings/${record.difficulty}`)
   await push(rankRef, record)
 }
@@ -25,7 +15,7 @@ export async function getLeaderboard(
   const rankRef = query(
     ref(database, `rankings/${difficulty}`),
     orderByChild("timeMs"),
-    limitToFirst(limit * 5)
+    limitToFirst(limit * 5) // fetch extra, filter to top N per user client-side
   )
   const snap = await get(rankRef)
   if (!snap.exists()) return []
@@ -35,6 +25,7 @@ export async function getLeaderboard(
     all.push(child.val() as RankedRecord)
   })
 
+  // Keep only the best record per user
   const bestByUser = new Map<string, RankedRecord>()
   for (const r of all) {
     const existing = bestByUser.get(r.uid)

@@ -102,7 +102,7 @@ useEffect(() => {
   return () => document.removeEventListener("contextmenu", prevent)
 }, [])
 
-  const stopTimer = useCallback(() => {
+  const stopTimer = useCallback(() => { 
     if (timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null

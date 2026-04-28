@@ -274,7 +274,11 @@ const handlePlayAgain = useCallback(async () => {
     // 협동 모드는 모두 대기실로
     router.push(`/room/${roomId}?playerId=${playerId}&nickname=${encodeURIComponent(nickname)}`)
   }
-}, [room, roomId, playerId, nickname, router]
+}, [room, roomId, playerId, nickname, router])  // ← 이 괄호가 제대로 있는지 확인
+
+const handleGoHome = useCallback(() => {
+  router.push("/")
+}, [router])
   const players = room.players ? Object.values(room.players) : []
   const activePlayers = players.filter((p) => !p.isSpectator)
   const spectators = players.filter((p) => p.isSpectator)

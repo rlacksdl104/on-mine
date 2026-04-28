@@ -66,13 +66,13 @@ export function GameResultDialog({
       ? [...players].sort((a, b) => {
           if (a.status === "won" && b.status !== "won") return -1
           if (b.status === "won" && a.status !== "won") return 1
-          if (a.status === "lost" && b.status !== "lost") return 1
-          if (b.status === "lost" && a.status !== "lost") return -1
           if (a.finishTime && b.finishTime) return a.finishTime - b.finishTime
           return (b.progress || 0) - (a.progress || 0)
         })
       : [...players].sort((a, b) => (b.cellsRevealed || 0) - (a.cellsRevealed || 0))
 
+  // 대전 모드에서 1등 여부 확인
+  const isWinner = mode === "competitive" && sortedPlayers[0]?.id === currentPlayerId
   // Cooperative stats
   const totalCellsRevealed = players.reduce((sum, p) => sum + (p.cellsRevealed || 0), 0)
   const totalFlagsPlaced = players.reduce((sum, p) => sum + (p.flagsPlaced || 0), 0)
@@ -319,13 +319,17 @@ export function GameResultDialog({
             <Home className="h-4 w-4" />
             홈으로
           </Button>
-          <Button
-            className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={onPlayAgain}
-          >
-            <RotateCcw className="h-4 w-4" />
-            {isSpectator ? "대기실로" : "다시 하기"}
-          </Button>
+<Button
+  className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+  onClick={onPlayAgain}
+>
+  <RotateCcw className="h-4 w-4" />
+  {isSpectator 
+    ? "대기실로" 
+    : mode === "competitive" && isWinner
+    ? "모두 다시 시작"
+    : "다시 하기"}
+</Button>
         </div>
       </DialogContent>
     </Dialog>

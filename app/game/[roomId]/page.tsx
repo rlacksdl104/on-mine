@@ -242,25 +242,39 @@ useEffect(() => {
     [room, roomId, playerId]
   )
 
-const handlePlayAgain = useCallback(() => {
-  router.push(`/room/${roomId}?playerId=${playerId}&nickname=${encodeURIComponent(nickname)}`)
-}, [roomId, playerId, nickname, router])
-
-  const handleGoHome = useCallback(() => {
-    router.push("/")
-  }, [router])
-
-  if (!room || !localBoard) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">게임 로딩 중...</p>
-        </div>
-      </main>
-    )
+const handlePlayAgain = useCallback(async () => {
+  if (!room) return
+  
+  const players = Object.values(room.players || {}).filter(p => !p.isSpectator)
+  
+  // 대전 모드에서 1등 판단
+  if (room.mode === "competitive") {
+    const sortedPlayers = [...players].sort((a, b) => {
+      if (a.status === "won" && b.status !== "won") return -1
+      if (b.status === "won" && a.status !== "won") return 1
+      if (a.finishTime && b.finishTime) return a.finishTime - b.finishTime
+      return (b.progress || 0) - (a.progress || 0)
+    })
+    
+    const isWinner = sortedPlayers[0]?.id === playerId
+    
+    if (isWinner) {
+      // 1등만 전체 게임 리셋 가능
+      setShowResult(false)
+      boardInitRef.current = false
+      setLocalBoard(null)
+      setLocalStatus("playing")
+      setIsSpectator(false)
+      await resetGame(roomId)
+    } else {
+      // 나머지는 대기실로만 이동
+      router.push(`/room/${roomId}?playerId=${playerId}&nickname=${encodeURIComponent(nickname)}`)
+    }
+  } else {
+    // 협동 모드는 모두 대기실로
+    router.push(`/room/${roomId}?playerId=${playerId}&nickname=${encodeURIComponent(nickname)}`)
   }
-
+}, [room, roomId, playerId, nickname, router]
   const players = room.players ? Object.values(room.players) : []
   const activePlayers = players.filter((p) => !p.isSpectator)
   const spectators = players.filter((p) => p.isSpectator)
